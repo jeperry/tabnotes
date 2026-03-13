@@ -1,0 +1,183 @@
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f4f4f5;
+  --text: #18181b;
+  --text-muted: #71717a;
+  --border: #e4e4e7;
+  --accent: #6366f1;
+  --accent-light: #e0e7ff;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+  --radius: 8px;
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #18181b;
+    --bg-secondary: #27272a;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --border: #3f3f46;
+    --accent: #818cf8;
+    --accent-light: #312e81;
+    --danger: #f87171;
+    --danger-light: #450a0a;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 340px;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+}
+
+.container {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Header ────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.favicon {
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.page-title {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Metadata ──────────────────────────────────────────────────────── */
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.meta-item a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.meta-item a:hover {
+  text-decoration: underline;
+}
+
+.meta-badge {
+  display: inline-block;
+  font-size: 10.5px;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 500;
+  text-transform: lowercase;
+}
+
+.meta-badge:empty {
+  display: none;
+}
+
+/* ── Note textarea ─────────────────────────────────────────────────── */
+
+.note-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.note-input {
+  width: 100%;
+  resize: vertical;
+  min-height: 72px;
+  padding: 8px 10px;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.note-input:focus {
+  border-color: var(--accent);
+}
+
+.note-input::placeholder {
+  color: var(--text-muted);
+}
+
+.note-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.save-status {
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: opacity 0.3s;
+}
+
+.delete-btn {
+  font-size: 11.5px;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--danger);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.delete-btn:hover {
+  background: var(--danger-light);
+  border-color: var(--danger);
+}
+
+/* ── Footer ────────────────────────────────────────────────────────── */
+
+.footer {
+  text-align: center;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+
+.all-notes-link {
+  font-size: 11.5px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.all-notes-link:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="popup.css">
+  <title>TabNotes</title>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <img id="favicon" class="favicon" src="" alt="" width="16" height="16">
+      <h1 id="page-title" class="page-title">Loading…</h1>
+    </header>
+
+    <div id="meta" class="meta">
+      <span id="opened-at" class="meta-item"></span>
+      <span id="source" class="meta-item"></span>
+      <span id="transition" class="meta-badge"></span>
+    </div>
+
+    <div class="note-section">
+      <textarea
+        id="note"
+        class="note-input"
+        placeholder="Add a note — why is this tab open?"
+        rows="4"
+      ></textarea>
+      <div class="note-footer">
+        <span id="save-status" class="save-status"></span>
+        <button id="delete-btn" class="delete-btn" title="Delete note">Delete</button>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <a id="all-notes-link" href="#" class="all-notes-link">All notes</a>
+    </footer>
+  </div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>

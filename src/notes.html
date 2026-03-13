@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="popup.css">
+  <title>TabNotes — All Notes</title>
+  <style>
+    body {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .page-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 10px;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      outline: none;
+      margin-bottom: 16px;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
+    .notes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .note-card {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-secondary);
+    }
+
+    .note-card-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .note-card-title {
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .note-card-title a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .note-card-title a:hover {
+      text-decoration: underline;
+    }
+
+    .note-card-body {
+      font-size: 12.5px;
+      color: var(--text);
+      white-space: pre-wrap;
+      margin-top: 4px;
+    }
+
+    .note-card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 40px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>All Notes</h1>
+  </div>
+  <input type="text" id="search" class="search-input" placeholder="Search notes…">
+  <div id="notes-list" class="notes-list"></div>
+
+  <script type="module">
+    import { getAllNotes } from './storage.js';
+
+    const listEl = document.getElementById('notes-list');
+    const searchEl = document.getElementById('search');
+
+    function timeAgo(ts) {
+      const seconds = Math.floor((Date.now() - ts) / 1000);
+      if (seconds < 60) return 'just now';
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h ago`;
+      const days = Math.floor(hours / 24);
+      return `${days}d ago`;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    async function render(filter = '') {
+      const notes = await getAllNotes();
+      const q = filter.toLowerCase();
+
+      const filtered = notes
+        .filter(n => {
+          if (!q) return true;
+          return (n.title || '').toLowerCase().includes(q)
+            || (n.note || '').toLowerCase().includes(q)
+            || (n.url || '').toLowerCase().includes(q);
+        })
+        .sort((a, b) => (b.openedAt || 0) - (a.openedAt || 0));
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="empty-state">${q ? 'No matching notes.' : 'No notes yet. Click the TabNotes icon on any tab to add one.'}</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(n => `
+        <div class="note-card">
+          <div class="note-card-header">
+            <img src="https://www.google.com/s2/favicons?domain=${escapeHtml(new URL(n.url).hostname)}&sz=32" width="14" height="14" style="border-radius:2px">
+            <span class="note-card-title"><a href="${escapeHtml(n.url)}" target="_blank">${escapeHtml(n.title || n.url)}</a></span>
+          </div>
+          ${n.note ? `<div class="note-card-body">${escapeHtml(n.note)}</div>` : ''}
+          <div class="note-card-meta">
+            ${n.openedAt ? `Opened ${timeAgo(n.openedAt)}` : ''}
+            ${n.openerTitle ? ` · from ${escapeHtml(n.openerTitle)}` : ''}
+            ${n.transition ? ` · ${n.transition}` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    searchEl.addEventListener('input', () => render(searchEl.value));
+    render();
+  </script>
+</body>
+</html>
