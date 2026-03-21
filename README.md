@@ -24,7 +24,7 @@
 - **Automatic context capture** — records the referring page (opener tab) and navigation type (link click, typed/pasted URL, bookmark, etc.)
 - **Timestamps** — tracks when each tab was first opened with relative time display
 - **Badge indicator** — a small dot on the extension icon shows when the current tab has a note
-- **All Notes archive** — browse and search every note you've ever written, even after tabs are closed
+- **All Notes archive** — browse and search every note you've ever written, grouped by open and closed tabs, with per-note cleanup
 - **Auto-save** — notes save automatically as you type
 - **Light & dark mode** — follows your system preference
 - **No account required** — everything is stored locally in your browser
