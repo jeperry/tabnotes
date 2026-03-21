@@ -1,14 +1,30 @@
-# TabNotes
+<p align="center">
+  <img src="icons/icon128.png" width="96" height="96" alt="TabNotes icon">
+</p>
 
-A Chrome extension that lets you annotate any open tab with a plain-text note. TabNotes automatically captures where each tab came from and when it was opened, so you never forget why a tab is sitting there.
+<h1 align="center">TabNotes</h1>
+
+<p align="center">
+  <strong>Remember why every tab is open.</strong><br>
+  A Chrome extension that lets you annotate any tab with a plain-text note,<br>
+  while automatically capturing where it came from and when it was opened.
+</p>
+
+<p align="center">
+  <a href="#getting-started"><strong>Install</strong></a> · <a href="#features"><strong>Features</strong></a> · <a href="#how-it-works"><strong>How It Works</strong></a> · <a href="#contributing"><strong>Contributing</strong></a>
+</p>
+
+---
 
 ## Features
 
 - **Per-tab notes** — add a plain-text annotation to any open tab via the toolbar popup
+- **Tab title marker** — annotated tabs show a `✎` prefix in the tab strip so you can spot them at a glance
+- **Noted Tabs navigator** — quickly list and jump to any open tab that has a note
 - **Automatic context capture** — records the referring page (opener tab) and navigation type (link click, typed/pasted URL, bookmark, etc.)
 - **Timestamps** — tracks when each tab was first opened with relative time display
-- **Badge indicator** — a small dot on the extension icon shows which tabs have notes
-- **All Notes view** — browse and search every annotated tab in one page
+- **Badge indicator** — a small dot on the extension icon shows when the current tab has a note
+- **All Notes archive** — browse and search every note you've ever written, even after tabs are closed
 - **Auto-save** — notes save automatically as you type
 - **Light & dark mode** — follows your system preference
 - **No account required** — everything is stored locally in your browser
@@ -28,7 +44,9 @@ A Chrome extension that lets you annotate any open tab with a plain-text note. T
 - Click the **TabNotes icon** in the Chrome toolbar to open the popup for the current tab
 - Type a note in the text area — it saves automatically
 - The popup shows metadata: when the tab was opened, where it came from, and how it was opened (link, typed/pasted, bookmark, etc.)
-- Click **All notes** at the bottom of the popup to see every annotated tab in a searchable list
+- Annotated tabs get a **✎** prefix in the tab strip so you can spot them without clicking anything
+- Switch to the **Noted Tabs** view in the popup to see all open tabs with notes and jump to any of them
+- Click **All notes** at the bottom of the popup to open a searchable archive of every note, including closed tabs
 
 ## How It Works
 
@@ -53,9 +71,10 @@ tabnotes/
 │   ├── background.js    # Service worker — captures tab context
 │   ├── storage.js       # Async wrappers for chrome.storage.local
 │   ├── popup.html       # Toolbar popup shell
-│   ├── popup.js         # Popup logic — note editor + metadata
+│   ├── popup.js         # Popup logic — note editor, noted tabs list
 │   ├── popup.css        # Popup + shared styles
-│   └── notes.html       # Full-page "All Notes" view
+│   ├── notes.html       # Full-page "All Notes" archive
+│   └── notes.js         # All Notes page logic
 ├── icons/
 │   ├── icon16.png
 │   ├── icon48.png
