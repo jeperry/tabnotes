@@ -8,28 +8,39 @@
 </head>
 <body>
   <div class="container">
-    <header class="header">
-      <img id="favicon" class="favicon" src="" alt="" width="16" height="16">
-      <h1 id="page-title" class="page-title">Loading…</h1>
-    </header>
+    <nav class="tab-bar">
+      <button class="tab-btn active" data-view="current">This Tab</button>
+      <button class="tab-btn" data-view="noted">Noted Tabs<span id="noted-count" class="noted-count"></span></button>
+    </nav>
 
-    <div id="meta" class="meta">
-      <span id="opened-at" class="meta-item"></span>
-      <span id="source" class="meta-item"></span>
-      <span id="transition" class="meta-badge"></span>
+    <div id="view-current" class="view">
+      <header class="header">
+        <img id="favicon" class="favicon" src="" alt="" width="16" height="16">
+        <h1 id="page-title" class="page-title">Loading…</h1>
+      </header>
+
+      <div id="meta" class="meta">
+        <span id="opened-at" class="meta-item"></span>
+        <span id="source" class="meta-item"></span>
+        <span id="transition" class="meta-badge"></span>
+      </div>
+
+      <div class="note-section">
+        <textarea
+          id="note"
+          class="note-input"
+          placeholder="Add a note — why is this tab open?"
+          rows="4"
+        ></textarea>
+        <div class="note-footer">
+          <span id="save-status" class="save-status"></span>
+          <button id="delete-btn" class="delete-btn" title="Delete note">Delete</button>
+        </div>
+      </div>
     </div>
 
-    <div class="note-section">
-      <textarea
-        id="note"
-        class="note-input"
-        placeholder="Add a note — why is this tab open?"
-        rows="4"
-      ></textarea>
-      <div class="note-footer">
-        <span id="save-status" class="save-status"></span>
-        <button id="delete-btn" class="delete-btn" title="Delete note">Delete</button>
-      </div>
+    <div id="view-noted" class="view hidden">
+      <div id="noted-list" class="noted-list"></div>
     </div>
 
     <footer class="footer">

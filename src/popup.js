@@ -1,4 +1,4 @@
-import { getNote, saveNote, deleteNote, getAllNotes } from './storage.js';
+import { getNote, saveNote, deleteNote } from './storage.js';
 
 // ── DOM refs ────────────────────────────────────────────────────────
 
@@ -11,8 +11,16 @@ const noteEl       = document.getElementById('note');
 const saveStatusEl = document.getElementById('save-status');
 const deleteBtn    = document.getElementById('delete-btn');
 const allNotesLink = document.getElementById('all-notes-link');
+const notedListEl  = document.getElementById('noted-list');
+const notedCountEl = document.getElementById('noted-count');
+const tabBtns      = document.querySelectorAll('.tab-btn');
+const viewCurrent  = document.getElementById('view-current');
+const viewNoted    = document.getElementById('view-noted');
+
+const TITLE_MARKER = '✎ ';
 
 let currentUrl = null;
+let currentTabId = null;
 let saveTimer  = null;
 
 // ── Helpers ─────────────────────────────────────────────────────────
@@ -54,6 +62,35 @@ function faviconUrl(pageUrl) {
   }
 }
 
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function truncate(str, max) {
+  if (!str) return '';
+  return str.length > max ? str.slice(0, max) + '…' : str;
+}
+
+function stripMarker(title) {
+  return (title || '').startsWith(TITLE_MARKER)
+    ? title.slice(TITLE_MARKER.length)
+    : title || '';
+}
+
+// ── View switching ──────────────────────────────────────────────────
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.view;
+    tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+    viewCurrent.classList.toggle('hidden', target !== 'current');
+    viewNoted.classList.toggle('hidden', target !== 'noted');
+    if (target === 'noted') renderNotedTabs();
+  });
+});
+
 // ── Load current tab data ───────────────────────────────────────────
 
 async function init() {
@@ -61,7 +98,8 @@ async function init() {
   if (!tab) return;
 
   currentUrl = tab.url;
-  titleEl.textContent = tab.title || tab.url || 'Untitled';
+  currentTabId = tab.id;
+  titleEl.textContent = stripMarker(tab.title) || tab.url || 'Untitled';
   faviconEl.src = tab.favIconUrl || faviconUrl(tab.url);
 
   const record = await getNote(currentUrl);
@@ -84,17 +122,73 @@ async function init() {
   }
 
   noteEl.focus();
+
+  // Update the badge count on the "Noted Tabs" button
+  updateNotedCount();
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+// ── Noted tabs: count badge ─────────────────────────────────────────
+
+async function updateNotedCount() {
+  const tabs = await chrome.tabs.query({});
+  let count = 0;
+  for (const tab of tabs) {
+    if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) continue;
+    const record = await getNote(tab.url);
+    if (record && record.note && record.note.trim().length > 0) count++;
+  }
+  notedCountEl.textContent = count > 0 ? count : '';
 }
 
-function truncate(str, max) {
-  if (!str) return '';
-  return str.length > max ? str.slice(0, max) + '…' : str;
+// ── Noted tabs: render list ─────────────────────────────────────────
+
+async function renderNotedTabs() {
+  const tabs = await chrome.tabs.query({});
+  const items = [];
+
+  for (const tab of tabs) {
+    if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) continue;
+    const record = await getNote(tab.url);
+    if (record && record.note && record.note.trim().length > 0) {
+      items.push({ tab, record });
+    }
+  }
+
+  if (items.length === 0) {
+    notedListEl.innerHTML = '<div class="noted-empty">No open tabs have notes yet.</div>';
+    return;
+  }
+
+  items.sort((a, b) => (b.record.openedAt || 0) - (a.record.openedAt || 0));
+
+  notedListEl.innerHTML = items.map(({ tab, record }) => {
+    const title = stripMarker(tab.title) || record.title || tab.url;
+    const icon = tab.favIconUrl || faviconUrl(tab.url);
+    const note = truncate(record.note.trim(), 60);
+    const time = record.openedAt ? timeAgo(record.openedAt) : '';
+
+    return `
+      <div class="noted-tab" data-tab-id="${tab.id}" data-window-id="${tab.windowId}">
+        <img class="noted-tab-icon" src="${escapeHtml(icon)}" width="16" height="16" alt="">
+        <div class="noted-tab-content">
+          <div class="noted-tab-title">${escapeHtml(title)}</div>
+          <div class="noted-tab-note">${escapeHtml(note)}</div>
+        </div>
+        ${time ? `<span class="noted-tab-time">${time}</span>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  // Click handler: switch to that tab
+  notedListEl.querySelectorAll('.noted-tab').forEach(el => {
+    el.addEventListener('click', async () => {
+      const tabId = Number(el.dataset.tabId);
+      const windowId = Number(el.dataset.windowId);
+      await chrome.tabs.update(tabId, { active: true });
+      await chrome.windows.update(windowId, { focused: true });
+      window.close();
+    });
+  });
 }
 
 // ── Auto-save on typing (debounced 500ms) ───────────────────────────
@@ -106,6 +200,7 @@ noteEl.addEventListener('input', () => {
     if (!currentUrl) return;
     await saveNote(currentUrl, { note: noteEl.value });
     saveStatusEl.textContent = 'Saved';
+    updateNotedCount();
     setTimeout(() => { saveStatusEl.textContent = ''; }, 1500);
   }, 500);
 });
@@ -120,6 +215,7 @@ deleteBtn.addEventListener('click', async () => {
   sourceEl.innerHTML = '';
   transitionEl.textContent = '';
   saveStatusEl.textContent = 'Deleted';
+  updateNotedCount();
   setTimeout(() => { saveStatusEl.textContent = ''; }, 1500);
 });
 
