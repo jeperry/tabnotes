@@ -3,14 +3,18 @@ import { getNote, saveNote, ensureMetadata } from './storage.js';
 // ── Badge helpers ───────────────────────────────────────────────────
 
 async function updateBadge(tabId, url) {
-  if (!url || url.startsWith('chrome://') || url.startsWith('chrome-extension://')) {
-    chrome.action.setBadgeText({ tabId, text: '' });
-    return;
+  try {
+    if (!url || url.startsWith('chrome://') || url.startsWith('chrome-extension://')) {
+      chrome.action.setBadgeText({ tabId, text: '' });
+      return;
+    }
+    const record = await getNote(url);
+    const hasNote = record && record.note && record.note.trim().length > 0;
+    chrome.action.setBadgeText({ tabId, text: hasNote ? '●' : '' });
+    chrome.action.setBadgeBackgroundColor({ tabId, color: '#6366f1' });
+  } catch {
+    // tab may have been closed before badge update completed
   }
-  const record = await getNote(url);
-  const hasNote = record && record.note && record.note.trim().length > 0;
-  chrome.action.setBadgeText({ tabId, text: hasNote ? '●' : '' });
-  chrome.action.setBadgeBackgroundColor({ tabId, color: '#6366f1' });
 }
 
 // ── Pending metadata map (tabId → partial metadata) ─────────────────
