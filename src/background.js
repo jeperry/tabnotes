@@ -1,4 +1,4 @@
-import { getNote, ensureMetadata } from './storage.js';
+import { getNote, saveNote, ensureMetadata } from './storage.js';
 
 // ── Badge helpers ───────────────────────────────────────────────────
 
@@ -93,7 +93,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url) {
     const record = await getNote(tab.url);
     if (record && !record.title && tab.title) {
-      const { saveNote } = await import('./storage.js');
       await saveNote(tab.url, { title: tab.title });
     }
     updateBadge(tabId, tab.url);
